@@ -35,7 +35,7 @@ app.use('/uploads', (req, res, next) => {
     }
     next();
 }, express.static(path.join(__dirname, 'uploads')));
-app.use(express.static(path.join(__dirname, '..', 'Odjemalec')));
+app.use(express.static(path.join(__dirname, '..', '..', 'Odjemalec')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 var usersRouter = require('./routes/users');
