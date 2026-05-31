@@ -19,7 +19,9 @@ var app = express();
 app.use(cors());
 var apiPrefix = '/api/v1';
 
-const uploadsDir = path.join(__dirname, 'uploads');
+const frontendPath = path.join(__dirname, '..', '..', 'Odjemalec');
+const uploadsDir = path.join(__dirname, '..', '..', 'uploads');
+
 if (!fs.existsSync(uploadsDir)){
     fs.mkdirSync(uploadsDir);
 }
@@ -34,8 +36,9 @@ app.use('/uploads', (req, res, next) => {
         return res.status(403).json({ napaka: 'PDF datoteke so dostopne samo prek preverjenega prenosa.' });
     }
     next();
-}, express.static(path.join(__dirname, 'uploads')));
-app.use(express.static(path.join(__dirname, '..', '..', 'Odjemalec')));
+}, express.static(uploadsDir));
+
+app.use(express.static(frontendPath));
 app.use(express.static(path.join(__dirname, 'public')));
 
 var usersRouter = require('./routes/users');
@@ -88,7 +91,7 @@ app.post(`${apiPrefix}/materials/subscribe`, (req, res) => {
 });
 
 app.get('/', function(req, res) {
-    res.sendFile(path.join(__dirname, '..', 'Odjemalec', 'index.html'));
+    res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
 app.use(function(req, res, next) {
