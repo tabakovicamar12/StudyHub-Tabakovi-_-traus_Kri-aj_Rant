@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { db, runAsync, getAsync, allAsync } = require('../database/db');
 
-const UPLOADS_DIR = path.join(__dirname, '../uploads/materials');
+const UPLOADS_DIR = path.join(__dirname, '../../uploads/materials');
 
 const ensureDirectory = () => {
     if (!fs.existsSync(UPLOADS_DIR)) {
@@ -129,23 +129,17 @@ async function getMaterialById(id) {
 
 async function createMaterial(materialData, filePath, fileName) {
     try {
-        const title = materialData.naziv;
-        const description = materialData.opis;
-        const thumbnail_price = parseFloat(materialData.cena) || 0;
-        const file_path = filePath;
-        const preview_path = materialData.slikaPath || null;
-        const uploader_id = materialData.korisnikId;
-        const subject_id = materialData.predmet;
-        const professor_name = materialData.profesor;
+        const fileNameOnly = path.basename(filePath);
+        const file_path = fileNameOnly;
+        const preview_path = materialData.slikaPath ? materialData.slikaPath : null;
 
         await runAsync(`
             INSERT INTO material (title, description, thumbnail_price, file_path, preview_path, uploader_id, subject_id, professor_name, avg_rating, view_count)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 5, 0)
-        `, [title, description, thumbnail_price, file_path, preview_path, uploader_id, subject_id, professor_name]);
+        `, [materialData.naziv, materialData.opis, parseFloat(materialData.cena) || 0, file_path, preview_path, materialData.korisnikId, materialData.predmet, materialData.profesor]);
 
-        return await getAsync('SELECT * FROM material WHERE uploader_id = ? ORDER BY created_at DESC LIMIT 1', [uploader_id]);
+        return await getAsync('SELECT * FROM material WHERE uploader_id = ? ORDER BY created_at DESC LIMIT 1', [materialData.korisnikId]);
     } catch (error) {
-        console.error('Napaka pri ustvarjanju gradiva:', error);
         throw error;
     }
 }

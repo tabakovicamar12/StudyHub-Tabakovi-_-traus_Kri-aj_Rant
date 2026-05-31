@@ -224,21 +224,14 @@ router.get('/:id/download', authenticateToken, async (req, res) => {
 
         const filePath = cartPaymentAccess.resolveMaterialFile(gradivo.pdfPath);
         if (!filePath) {
-            return res.status(404).json({
-                napaka: "Gradivo ali datoteka ni najdena"
-            });
+            return res.status(404).json({ napaka: "Gradivo ali datoteka ni najdena" });
         }
 
         await materialStore.incrementViewCount(req.params.id);
-        res.download(filePath, `${gradivo.naziv}.pdf`, (err) => {
-            if (err) console.error('Napaka pri prenosu:', err);
-        });
+        res.download(filePath, `${gradivo.naziv}.pdf`);
 
     } catch (error) {
-        res.status(500).json({
-            napaka: "Napaka pri prenosu datoteke",
-            opis: error.message
-        });
+        res.status(500).json({ napaka: "Greška", opis: error.message });
     }
 });
 
@@ -261,7 +254,7 @@ router.put('/:id', authenticateToken, uploadConfig, async (req, res) => {
         const updateData = {
             ...req.body,
             slikaPath: req.files['slika'] ? req.files['slika'][0].filename : gradivo.slikaPath,
-            pdfPath: req.files['pdf'] ? req.files['pdf'][0].filename : gradivo.pdfPath
+            pdfPath: req.files['pdf'] ? 'uploads/materials/' + req.files['pdf'][0].filename : gradivo.pdfPath
         };
 
         const result = await materialStore.updateMaterial(materialId, updateData);

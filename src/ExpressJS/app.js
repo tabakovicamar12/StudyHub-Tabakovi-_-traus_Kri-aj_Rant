@@ -8,6 +8,13 @@ const cors = require('cors');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const { dbEmitter } = require('./database/db');
+const seedData = require('./preveri_bazo');
+
+dbEmitter.on('ready', async () => {
+    await seedData();
+    console.log("Baza je pripravljena.");
+});
 
 webpush.setVapidDetails(
     process.env.VAPID_EMAIL || 'mailto:test@example.com',
@@ -16,14 +23,14 @@ webpush.setVapidDetails(
 );
 
 var app = express();
-app.use(cors());
+app.options('*', cors());
 var apiPrefix = '/api/v1';
 
-const frontendPath = path.join(__dirname, '..', '..', 'Odjemalec');
-const uploadsDir = path.join(__dirname, '..', '..', 'uploads');
+const frontendPath = path.join(__dirname, '..', 'Odjemalec');
+const uploadsDir = path.join(__dirname, '..', 'uploads', 'materials');
 
 if (!fs.existsSync(uploadsDir)){
-    fs.mkdirSync(uploadsDir);
+    fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
 app.use(logger('dev'));
@@ -49,9 +56,9 @@ var cartPaymentsRouter = require('./routes/cartPayments');
 var purchaseRouter = require('./routes/purchase');
 var subjectRouter = require('./routes/subject');
 var syncRouter = require('./routes/sync');
-var reviewsRouter = require('./routes/reviews');
 var moderationRouter = require('./routes/moderation');
 var universityRouter = require('./routes/university');
+var reviewsRouter = require('./routes/reviews');
 
 app.use('/users', usersRouter);
 app.use(`${apiPrefix}/auth`, authRouter);
@@ -67,7 +74,7 @@ app.use(`${apiPrefix}/university`, universityRouter);
 
 app.get(`${apiPrefix}/materials/public-key`, (req, res) => {
     if (!process.env.VAPID_PUBLIC_KEY) {
-        return res.status(500).json({ napaka: "VAPID ključ ni nastavljen v .env!" });
+        return res.status(500).json({ napaka: "VAPID ključ ni nastavljen!" });
     }
     res.json({ publicKey: process.env.VAPID_PUBLIC_KEY });
 });

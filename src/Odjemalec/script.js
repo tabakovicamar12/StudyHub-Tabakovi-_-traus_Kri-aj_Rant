@@ -673,134 +673,6 @@ function updateImageName(input) {
     document.getElementById('image-name-display').textContent = fileName;
 }
 
-function getMaterialImageUrl(path) {
-    if (!path) return 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=500';
-
-    let cleanPath = path.replace(/\\/g, '/');
-
-    if (cleanPath.startsWith('uploads/')) {
-        return '/' + cleanPath;
-    }
-
-    if (cleanPath.startsWith('materials/')) {
-        return '/uploads/' + cleanPath;
-    }
-
-    if (!cleanPath.startsWith('/') && !cleanPath.startsWith('http')) {
-        return '/uploads/materials/' + cleanPath;
-    }
-
-    return cleanPath;
-}
-
-/*document.getElementById('uploadForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
-
-    const editId = document.getElementById('edit-id').value;
-    const token = localStorage.getItem('token');
-
-    const naziv = this.querySelector('[name="naziv"]').value;
-    const opis = this.querySelector('[name="opis"]').value;
-    const predmet = this.querySelector('[name="predmet"]').value;
-    const profesor = this.querySelector('[name="profesor"]').value;
-
-    if (!navigator.onLine) {
-        const formData = new FormData(this);
-
-        const syncTask = {
-            action: editId ? 'PUT' : 'POST',
-            id: editId || null,
-            token: token,
-            data: {
-                naziv: formData.get('naziv'),
-                opis: formData.get('opis'),
-                predmet: formData.get('predmet'),
-                profesor: formData.get('profesor'),
-                pdf: formData.get('pdf'),
-                slika: formData.get('slika')
-            }
-        };
-
-        await dodajVSyncQueue(syncTask);
-
-        showNotification('Nimate povezave. Gradivo in datoteke so varno shranjeni lokalno.');
-        closeModal();
-        return;
-    }
-
-    if (editId) {
-        const editFormData = new FormData();
-
-        editFormData.append('naziv', this.querySelector('[name="naziv"]').value);
-        editFormData.append('opis', this.querySelector('[name="opis"]').value);
-        editFormData.append('predmet', this.querySelector('[name="predmet"]').value);
-        editFormData.append('profesor', this.querySelector('[name="profesor"]').value);
-
-        try {
-            const response = await fetch(`http://localhost:3000/api/v1/materials/${editId}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                body: editFormData
-            });
-
-            if (response.ok) {
-                showNotification("Gradivo in datoteke uspešno posodobljene!");
-                closeModal();
-                location.reload();
-                isEditModal = false;
-            } else {
-                const err = await response.json();
-                showNotification(err.napaka || "Napaka pri posodabljanju.", true);
-            }
-        } catch (err) {
-            showNotification("Težava s povezavo.", true);
-        }
-    } else {
-        const formData = new FormData();
-        formData.append('naziv', naziv);
-        formData.append('opis', opis);
-        formData.append('predmet', predmet);
-        formData.append('profesor', profesor);
-
-        const pdfInput = this.querySelector('input[type="file"]:not([accept*="image"])');
-        const slikaInput = this.querySelector('input[accept*="image"]');
-
-        if (pdfInput && pdfInput.files[0]) {
-            formData.append('pdf', pdfInput.files[0]);
-        }
-
-        if (slikaInput && slikaInput.files[0]) {
-            formData.append('slika', slikaInput.files[0]);
-        }
-
-        try {
-            const response = await fetch('http://localhost:3000/api/v1/materials/upload', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                body: formData
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                showNotification("Gradivo uspešno naloženo!");
-                closeModal();
-                this.reset();
-                location.reload();
-            } else {
-                showNotification(data.napaka || "Napaka pri nalaganju.", true);
-            }
-        } catch (err) {
-            console.error("Napaka:", err);
-            showNotification("Povezava s strežnikom ni uspela.", true);
-        }
-    }
-});*/
-
 document.getElementById('uploadForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
@@ -1224,7 +1096,7 @@ function getMaterialImageUrl(imagePath) {
     if (imagePath.startsWith('http') || imagePath.startsWith('data:') || imagePath.startsWith('/')) {
         return imagePath;
     }
-    return `/uploads/materials/${imagePath}`;
+    return `/uploads/${imagePath}`;
 }
 
 function displayCards(data) {
