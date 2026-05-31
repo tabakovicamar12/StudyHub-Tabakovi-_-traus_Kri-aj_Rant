@@ -68,6 +68,7 @@ async function refreshSubjects() {
         if (response.ok) {
             allSubjects = await response.json();
             buildDropdown(allSubjects);
+            populateFilterOptions();
         }
     } catch (err) {
         console.error("Napaka pri pridobivanju predmetov:", err);
@@ -324,7 +325,7 @@ function processVoiceCommand(command) {
     console.log('Prepoznan ukaz:', text);
 
     let m;
-    if ((m = text.match(/^(?:i[sš]či|iskanje)(?:\s+po\s+naslovu(?:\s+gradiva)?)?\s+(.+)$/))) {
+    if ((m = text.match(/^(?:i[sš]či|iskanje)\s+(.+)$/))) {
         const query = m[1].trim();
         const input = document.getElementById('searchInput');
         if (input) input.value = query;
@@ -360,7 +361,7 @@ function processVoiceCommand(command) {
         return;
     }
     if (text === 'pomoč') {
-        speak('Lahko rečete: išči po naslovu gradiva ter naslov, pojdi domov, osveži podatke, dodaj gradivo, prikaz mojega gradiva ali pokaži pomoč.');
+        speak('Lahko rečete: išči naslov, pojdi domov, osveži podatke, dodaj gradivo, prikaz mojega gradiva ali pokaži pomoč.');
         return;
     }
     speak('Ukaza ne razumem. Poskusite znova.');
@@ -880,7 +881,10 @@ function populateFilterOptions() {
     const select = document.getElementById('subjectFilterSelect');
     if (!select) return;
 
-    const subjects = Array.from(new Set(all_data.map(item => String(item.predmet || '').trim()).filter(Boolean))).sort();
+    const subjects = allSubjects.length > 0
+        ? allSubjects.map(s => s.name).sort()
+        : Array.from(new Set(all_data.map(item => String(item.predmet || '').trim()).filter(Boolean))).sort();
+
     select.innerHTML = '<option value="">Vsi predmeti</option>' + subjects.map(subject =>
         `<option value="${subject}">${subject}</option>`
     ).join('');
@@ -976,7 +980,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
         body: JSON.stringify({
             email: email,
             password: password,
-            university: university
+            university_id: university
         })
     });
 
@@ -1076,6 +1080,7 @@ async function naloziPodatke() {
         localStorage.setItem('gradiva_cache', JSON.stringify(data));
         all_data = data.gradiva;
         osveziPrikaz(data);
+        populateFilterOptions();
     } catch (error) {
         console.error('Offline mode:', error);
     }
